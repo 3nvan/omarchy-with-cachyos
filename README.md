@@ -1,4 +1,4 @@
-# omarchy-on-cachyos
+# omarchy-with-cachyos
 
 UPDATE 1-October-2025: The install script has been updated to support Omarchy 3.0+ out of the box. 
 
@@ -13,8 +13,7 @@ This installation script does the following:
   1) Clones Omarchy from its github repository 
   2) Makes adjustments to the Omarchy install scripts to support installation on CachyOS
   3) Launches the installation of Omarchy on an already setup CachyOS system
-  4) Installs and configures NVIDIA 580xx proprietary drivers
-  5) Increases the inotify file watcher limit from 524288 to 5242880
+  4) Increases the inotify file watcher limit from 524288 to 5242880
 
 This script does not:
 
@@ -43,7 +42,7 @@ The philosophy behind this script is to produce a strong and stable blend of Cac
 
 6. Full Disk Encryption: As a distribution, Omarchy automatically turns on full disk encryption via LUKS. This script, however, leaves this decision up to the user. CachyOS can be installed with or without full disk encryption, and this script will install Omarchy on either setup.
 
-7. NVIDIA Drivers: *By default, CachyOS and Omarchy may attempt to use the latest NVIDIA drivers with open kernel modules. This script explicitly downgrades/pins the driver to the* *580xx proprietary series* *using CachyOS's* `chwd` *tool. This is a deliberate choice to fix widespread issues with hardware acceleration, electron apps, and browser flickering.*
+
 
 ## 4. Pre-Requisites
 
@@ -55,35 +54,6 @@ IMPORTANT: This script does not install CachyOS. You must do that separately (an
 
 3. Desktop Environment to Install: You can install a minimal system with no desktop environment or you can choose to install the CachyOS Hyprland Desktop Environment. If you have CachyOS install Hyprland, it will also install SDDM as the login display manager by default. Do not install GNOME or KDE.
 
-4. Graphics Drivers for NVIDIA users: 
-
-5. This script now automatically handles NVIDIA driver installation by enforcing the proprietary 580xx drivers (via CachyOS `chwd`). This is necessary to avoid known regressions with hardware video decoding and browser flickering present in the newer open-kernel module drivers.
-
-   **Important:** 
-
-   To enable hardware video decode via NVDEC in chromium, you must:
-   
-   1. Add the following to `~/.config/chromium-flags.conf`:       ```       --enable-features=VaapiOnNvidiaGPUs       ```
-   2. Install the [enhanced-h264ify extension](https://chromewebstore.google.com/detail/enhanced-h264ify/omkfmpieigblcllmkgbflkikinpkodlk) and disable **VP8** and **AV1** codecs.
-   
-   
-   
-   To fully enable hardware acceleration in Firefox, you must 
-   
-   1. Install the [enhanced-h264ify add-on](https://addons.mozilla.org/en-US/firefox/addon/enhanced-h264ify/) and disable **VP8** and **AV1** codecs and manually add the following overrides to your `user.js`:
-   
-   ```js
-   // FORCE NVIDIA HARDWARE ACCELERATION
-   user_pref("media.hardware-video-decoding.force-enabled", true);
-   user_pref("media.hardware-video-encoding.force-enabled", true);
-   user_pref("layers.acceleration.force-enabled", true);
-   user_pref("webgl.force-enabled", true);
-   user_pref("media.ffmpeg.vaapi.enabled", true);
-   user_pref("media.rdd-ffmpeg.enabled", true);
-   user_pref("media.av1.enabled", true);
-   user_pref("widget.dmabuf.force-enabled", true);
-   user_pref("gfx.x11-egl.force-enabled", true);
-   ```
 
 Other configuration changes are up to you. Note, however, that this script has not been extensively tested on various CachyOS installations other than the author's own machine.
 
@@ -91,10 +61,10 @@ Other configuration changes are up to you. Note, however, that this script has n
 
 ```bash
 # Clone the repository
-git clone https://github.com/mroboff/omarchy-on-cachyos.git
+git clone https://github.com/3nvan/omarchy-with-cachyos.git
 
 # Navigate to the project directory
-cd omarchy-on-cachyos/bin
+cd omarchy-with-cachyos
 
 # Make the script executable
 chmod +x install-omarchy-on-cachyos.sh
