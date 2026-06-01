@@ -9,6 +9,14 @@ COUNTRY="${1:-US}"
 
 log() { printf '%s %s\n' "$(date -Iseconds)" "$*"; }
 
+# Treat any runtime error as non-fatal for the installer: log it and exit 0.
+# This prevents the installer from failing due to transient races or environment
+# differences; the script will attempt fallbacks but will never return a
+# non-zero status to the caller.
+trap 'rc=$?; log "set-wireless-regdom.sh: non-fatal error (exit $rc); continuing with exit 0"; exit 0' ERR
+# Also ensure interrupts/terminations return success to the installer.
+trap 'log "set-wireless-regdom.sh: interrupted; exiting 0"; exit 0' INT TERM
+
 # Ensure running under bash for consistent behavior
 if [ -z "${BASH_VERSION:-}" ]; then
   exec bash "$0" "$@"
