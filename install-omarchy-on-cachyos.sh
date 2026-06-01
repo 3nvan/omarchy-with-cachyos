@@ -1,5 +1,14 @@
 #!/bin/bash
 
+# Allow running the script without first `chmod +x`.
+# If the script is invoked via `sh script` or `./script` on a filesystem
+# that didn't preserve the executable bit, re-exec under bash so users can
+# run it as `sh install-omarchy-on-cachyos.sh` or `bash install-omarchy-on-cachyos.sh`.
+# This must be POSIX-compatible so shells like /bin/sh can reach the exec.
+if [ -z "${BASH_VERSION:-}" ]; then
+  exec bash "$0" "$@"
+fi
+
 # Check if git is installed
 if ! command -v git &> /dev/null; then
     echo "Error: git is not installed. Please install git before running this script."

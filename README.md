@@ -14,6 +14,7 @@ This installation script does the following:
   2) Makes adjustments to the Omarchy install scripts to support installation on CachyOS
   3) Launches the installation of Omarchy on an already setup CachyOS system
   4) Increases the inotify file watcher limit from 524288 to 5242880
+  5) Allows the installer to be run without first setting the executable bit; you can run it with `bash install-omarchy-on-cachyos.sh` or `sh install-omarchy-on-cachyos.sh` (the script will re-exec under `bash` when needed).
 
 This script does not:
 
@@ -66,11 +67,17 @@ git clone https://github.com/3nvan/omarchy-with-cachyos.git
 # Navigate to the project directory
 cd omarchy-with-cachyos
 
-# Make the script executable
-chmod +x install-omarchy-on-cachyos.sh
+# Make the script executable (optional)
+# You can either make it executable or run it directly with bash/sh.
+chmod +x install-omarchy-on-cachyos.sh  # optional
 
 # Run the installation script
+# Option A (recommended if you want the executable bit):
 ./install-omarchy-on-cachyos.sh
+
+# Option B (no chmod required):
+bash install-omarchy-on-cachyos.sh
+sh install-omarchy-on-cachyos.sh
 ```
 
 **Note:** Please review the script contents before running to understand what changes will be made to your system.
