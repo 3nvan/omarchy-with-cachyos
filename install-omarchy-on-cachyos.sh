@@ -79,6 +79,20 @@ echo "Making adjustments to Omarchy install scripts to support CachyOS..."
 # Navigate to Omarchy install scripts
 cd ../omarchy
 
+# If the Omarchy increase-file-watchers script exists, make it safe on CachyOS
+# by prepending a small guard that exits 0 when CachyOS is detected. This is
+# idempotent (it will not add the guard twice).
+WATCHER_FILE="install/config/increase-file-watchers.sh"
+if [ -f "$WATCHER_FILE" ]; then
+  if ! grep -q "omarchy-with-cachyos: skip on CachyOS" "$WATCHER_FILE" 2>/dev/null; then
+    echo "Patching $WATCHER_FILE to skip on CachyOS (idempotent)"
+    # Keep a backup in the cloned omarchy tree in case something goes wrong
+    cp "$WATCHER_FILE" "${WATCHER_FILE}.orig" 2>/dev/null || true
+    awk 'BEGIN{print "# omarchy-with-cachyos: skip on CachyOS"; print "if [ -f /etc/os-release ] && grep -qi \"cachy\" /etc/os-release; then"; print "  echo \"CachyOS detected; skipping inotify sysctl change (handled by distro).\""; print "  exit 0"; print "fi"} {print}' "$WATCHER_FILE" > "${WATCHER_FILE}.patched" && mv "${WATCHER_FILE}.patched" "$WATCHER_FILE"
+    chmod +x "$WATCHER_FILE" 2>/dev/null || true
+  fi
+fi
+
 # Remove tldr installation to prevent conflict with tealdeer install.
 sed -i '/tldr/d' install/omarchy-base.packages
 
@@ -143,8 +157,6 @@ fi\
 # Update mise activation to support both bash and fish
 sed -i 's/omarchy-cmd-present mise && eval "\$(mise activate bash)"/if [ "\$SHELL" = "\/bin\/bash" ] \&\& command -v mise \&> \/dev\/null; then\n  eval "\$(mise activate bash)"\nelif [ "\$SHELL" = "\/bin\/fish" ] \&\& command -v mise \&> \/dev\/null; then\n  mise activate fish | source\nfi/' config/uwsm/env
 
-# Increase file watcher limit from 524288 to 5242880
-sed -i 's/524288/5242880/' install/config/increase-file-watchers.sh
 
 # Copy omarchy installation files to ~/.local/share/omarchy
 mkdir -p ~/.local/share/omarchy
