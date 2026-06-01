@@ -20,9 +20,24 @@ if [ "$(id -u)" -ne 0 ]; then
   exec sudo bash "$0" "$@"
 fi
 
-# Wait for `iw` to become available (up to 15s). Some installer flows install
+# Give udev and modules a chance to settle (helps avoid races where cfg80211
+# or other wireless modules aren't yet ready). This will block briefly until
+# udev reports it has processed events.
+if command -v udevadm >/dev/null 2>&1; then
+  log "Waiting for udev to settle..."
+  udevadm settle || true
+fi
+
+# Try to proactively load wireless helper module; some systems need this
+# before `iw`/cfg80211 operations succeed.
+if command -v modprobe >/dev/null 2>&1; then
+  log "Attempting to load cfg80211 module (if not already loaded)"
+  modprobe cfg80211 >/dev/null 2>&1 || true
+fi
+
+# Wait for `iw` to become available (up to 30s). Some installer flows install
 # tools asynchronously, so this avoids a hard failure if `iw` appears shortly.
-WAIT_IW=15
+WAIT_IW=30
 for i in $(seq 1 $WAIT_IW); do
   if command -v iw >/dev/null 2>&1; then
     break
@@ -47,7 +62,7 @@ if command -v rfkill >/dev/null 2>&1; then
 fi
 
 # Try iw reg set with retries
-MAX_TRIES=3
+MAX_TRIES=6
 SLEEP_BASE=1
 success=0
 for attempt in $(seq 1 $MAX_TRIES); do
